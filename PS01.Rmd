@@ -1,7 +1,7 @@
 ---
 title: "STAT/MATH 495: Problem Set 01"
-author: "WRITE YOUR NAME HERE"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+author: "Pei Gong"
+date: "2017-09-07"
 output:
   html_document:
     toc: true
@@ -12,10 +12,33 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width=8, fig.height=4.5)
-
 # Load packages
 library(tidyverse)
+require(mosaic)   # Load additional packages here
+library(gdata)
+library(randomForest)
 ```
 
+```{r}
+library(tidyverse)
+train <- read_csv("https://rudeboybert.github.io/STAT495/static/Titanic/train.csv")
+test <- read_csv("https://rudeboybert.github.io/STAT495/static/Titanic/test.csv")
+submission <- read_csv("https://rudeboybert.github.io/STAT495/static/Titanic/gender_submission.csv")
+```
+
+```{r}
+train<-train[c(1:418),]
+m1<-glm(train$Survived~train$Pclass+train$Sex+train$Age+train$SibSp+train$Parch+train$Fare)
+summary(m1)
+```
+
+##Prediction 
+```{r}
+prediction<-predict(m1,test)
+prediction1<-as.numeric(prediction)
+prediction2<-cut(prediction1,breaks=c(-Inf,0.5000,Inf), labels = c("0", "1"))
+solution<-data.frame(PassengerID=test$PassengerId,Survived=prediction2)
+solution[is.na(solution)]<-0
+write.csv(solution,"Solutions.csv",row.names = F)
+```
 
